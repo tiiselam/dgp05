@@ -1,0 +1,70 @@
+USE [PRD02]
+GO
+
+/****** Object:  View [dbo].[TII_BI_WINLA_ALERTA_CTA_CTE_PROV]    Script Date: 7/16/2019 4:11:01 PM ******/
+DROP VIEW [dbo].[TII_BI_WINLA_ALERTA_CTA_CTE_PROV]
+GO
+
+/****** Object:  View [dbo].[TII_BI_WINLA_ALERTA_CTA_CTE_PROV]    Script Date: 7/16/2019 4:11:01 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+
+
+CREATE VIEW [dbo].[TII_BI_WINLA_ALERTA_CTA_CTE_PROV] AS
+select   PT.VENDORID
+		,PP.VENDNAME						VENDNAME
+		,PT.DOCTYPE
+		,PT.DOCNUMBR
+		,PT.DOCDATE
+		,PT.CURNCYID
+		,isnull(MC.ORDOCAMT,PT.DOCAMNT) MONTO
+		,isnull(PA.ActualApplyToAmount	,0)		MONTO_APLICADO
+		,isnull(MC.ORDOCAMT,PT.DOCAMNT) - isnull(PA.ActualApplyToAmount	,0)		SAldo
+from	PM30200 PT
+		inner join dbo.PM00200 PP on  PP.VENDORID = PT.VENDORID
+		left outer join MC020103 MC on PT.DOCTYPE = MC.DOCTYPE	AND			PT.VCHRNMBR = MC.VCHRNMBR
+		left outer join (SELECT APTVCHNM, sum(ActualApplyToAmount) ActualApplyToAmount 
+						FROM PM30300 
+						GROUP BY APTVCHNM) PA on PT.VCHRNMBR = PA.APTVCHNM --aND PT.DOCTYPE = PA.DOCTYPE
+where PT.doctype not in(4,5,6)
+--and PT.VENDORID = '5011'
+AND CONVERT(CHAR(8),PT.DOCDATE ,112) >= 20180401
+union
+select  PT.VENDORID
+		,PP.VENDNAME						VENDNAME
+		,PT.DOCTYPE
+		,PT.DOCNUMBR
+		,PT.DOCDATE
+		,PT.CURNCYID
+		,isnull(MC.ORDOCAMT,PT.DOCAMNT) MONTO
+		,isnull(PA.ActualApplyToAmount	,0)		MONTO_APLICADO
+		,isnull(MC.ORDOCAMT,PT.DOCAMNT) - isnull(PA.ActualApplyToAmount	,0)		SAldo
+from	PM20000 PT
+		inner join dbo.PM00200 PP on  PP.VENDORID = PT.VENDORID
+		left outer join MC020103 MC on PT.DOCTYPE = MC.DOCTYPE	AND			PT.VCHRNMBR = MC.VCHRNMBR
+		left outer join (SELECT APTVCHNM, sum(ActualApplyToAmount) ActualApplyToAmount 
+						FROM PM30300 
+						GROUP BY APTVCHNM) PA on PT.VCHRNMBR = PA.APTVCHNM --aND PT.DOCTYPE = PA.DOCTYPE
+where PT.doctype not in(4,5,6)
+AND CONVERT(CHAR(8),PT.DOCDATE ,112) >= 20180401
+--and PT.VENDORID = '5011'
+ 
+
+
+
+
+
+
+
+
+
+
+GO
+
+
